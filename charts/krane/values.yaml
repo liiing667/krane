@@ -19,6 +19,13 @@ params:
   # skipped by the risk rules that already exclude those. Set to false to have it
   # judged like operator authored RBAC instead.
   treatVendorManagedRolesAsDefault: true
+  # The dashboard starts only when KRANE_DASHBOARD_TOKEN is set. Reference a
+  # secret you create out of band with a long random token, e.g.
+  #   kubectl create secret generic krane-dashboard-token \
+  #     --from-literal=token="$(openssl rand -hex 32)"
+  dashboardTokenSecret:
+    name: krane-dashboard-token
+    key: token
 
 imagePullSecrets: []
 nameOverride: ""
@@ -44,10 +51,9 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
-# The Krane dashboard has no authentication: anything that can reach the service
-# can read your cluster's RBAC. It is a ClusterIP for that reason — use
-# `kubectl port-forward`, a NetworkPolicy, or an authenticating proxy rather than
-# exposing it.
+# The Krane dashboard is token-gated (KRANE_DASHBOARD_TOKEN): anonymous requests
+# get a 401. It is still a ClusterIP — use `kubectl port-forward`, a
+# NetworkPolicy, or an authenticating proxy rather than exposing it.
 service:
   type: ClusterIP
   port: 80

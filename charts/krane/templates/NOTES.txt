@@ -1,3 +1,9 @@
+The dashboard requires a bearer token. Create the secret referenced by
+`params.dashboardTokenSecret` before opening it, e.g.
+  kubectl create secret generic {{ .Values.params.dashboardTokenSecret.name }} \
+    --from-literal={{ .Values.params.dashboardTokenSecret.key }}="$(openssl rand -hex 32)"
+and send the value as `Authorization: Bearer <token>` (or a `krane_token` cookie).
+
 1. Get the application URL by running these commands:
 {{- if .Values.ingress.enabled }}
 {{- range $host := .Values.ingress.hosts }}

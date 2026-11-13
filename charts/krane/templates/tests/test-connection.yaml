@@ -11,5 +11,14 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "krane.fullname" . }}:{{ .Values.service.port }}']
+      args:
+        - '--header'
+        - 'Authorization: Bearer $(KRANE_DASHBOARD_TOKEN)'
+        - '{{ include "krane.fullname" . }}:{{ .Values.service.port }}'
+      env:
+        - name: KRANE_DASHBOARD_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.params.dashboardTokenSecret.name | quote }}
+              key: {{ .Values.params.dashboardTokenSecret.key | quote }}
   restartPolicy: Never

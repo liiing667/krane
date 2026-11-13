@@ -177,7 +177,7 @@ CI mode is enabled by `--ci` flag. _Krane_ will return non zero status code alon
 
 To view RBAC facets tree, network graph and latest report findings you need to start dashboard server first.
 ```
-krane dashboard
+KRANE_DASHBOARD_TOKEN=$(openssl rand -hex 32) krane dashboard
 ```
 
 Cluster flag `-c <cluster-name>` may be passed if you want to run the dashboard against specific cluster name. Dashboard will look for data related to specified cluster name which is cached on the file system.
@@ -186,7 +186,23 @@ Command above will start local web server on default port `8000`, and display th
 
 The server binds to `0.0.0.0` so that it is reachable when running in a cluster. Pass `-b 127.0.0.1` to keep it on the loopback interface when running locally.
 
-**The dashboard has no authentication.** It serves everything Krane knows about your cluster's RBAC to anyone who can reach the port, so do not expose it directly. Reach it with `kubectl port-forward`, restrict access with a NetworkPolicy (the chart already labels the pod with `network/krane: "true"`), or put an authenticating proxy in front of it.
+**The dashboard is token-gated and denies requests by default.** It will not start unless `KRANE_DASHBOARD_TOKEN` is set to a non-empty value, and every request — the index, the report JSON, fingerprinted assets and error pages alike — must present that token, or it gets a `401` before any path is resolved. Use a long random value, for example `KRANE_DASHBOARD_TOKEN=$(openssl rand -hex 32)`. The token is read from the environment rather than a command-line flag so it never appears in the process list, it is compared in constant time, and it is never written to the logs or echoed back in a response.
+
+Send the token as a bearer token, for example:
+
+```
+curl -H "Authorization: Bearer $KRANE_DASHBOARD_TOKEN" http://localhost:8000/data/clusters.json
+```
+
+For browser access, port-forward and set a cookie holding the same value, then open the page normally:
+
+```
+kubectl port-forward deploy/krane 8000:8000 &
+# in the browser console on http://localhost:8000:
+document.cookie = "krane_token=" + prompt("Dashboard token") + "; path=/; samesite=strict"
+```
+
+The token only identifies who may read this dashboard, not who may reach the port. Keep restricting exposure with `kubectl port-forward`, a NetworkPolicy (the chart already labels the pod with `network/krane: "true"`) or an authenticating proxy, and do not expose the service directly.
 
 The dashboard is a set of static files served from `dashboard/compiled`, and the report writes its data into the same directory. A report generated while the dashboard is running is picked up without a restart.
 

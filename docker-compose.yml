@@ -77,6 +77,9 @@ services:
       FALKORDB_PORT: '6379'
       SLACK_WEBHOOK_URL: ''
       SLACK_CHANNEL: ''
+      # Required by the token gate: the dashboard exits without it. Export it
+      # in the shell (or put it in a .env / secrets) rather than hard-coding.
+      KRANE_DASHBOARD_TOKEN: '${KRANE_DASHBOARD_TOKEN:?set KRANE_DASHBOARD_TOKEN to a long random value}'
     networks:
       - default
 

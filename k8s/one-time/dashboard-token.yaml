@@ -1,0 +1,32 @@
+# Copyright 2020 Appvia Ltd
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# The dashboard refuses to start without KRANE_DASHBOARD_TOKEN. Do not commit a
+# real value: create this secret out of band with a long random token instead,
+# for example
+#
+#   kubectl create secret generic krane-dashboard \
+#     --namespace krane \
+#     --from-literal=token="$(openssl rand -hex 32)"
+#
+# This placeholder only documents the expected shape and is not safe to deploy.
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: krane-dashboard
+  namespace: krane
+type: Opaque
+stringData:
+  token: REPLACE-BEFORE-APPLY

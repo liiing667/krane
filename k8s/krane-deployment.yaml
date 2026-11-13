@@ -41,6 +41,15 @@ spec:
           value: "30"
         - name: KRANE_REPORT_OUTPUT
           value: none
+        # Required: the dashboard refuses to start without a bearer token.
+        # Create the secret first, e.g.
+        #   kubectl create secret generic krane-dashboard \
+        #     --from-literal=token="$(openssl rand -hex 32)"
+        - name: KRANE_DASHBOARD_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: krane-dashboard
+              key: token
         - name: FALKORDB_HOST
           value: falkordb
         - name: SLACK_WEBHOOK_URL

@@ -113,6 +113,13 @@ spec:
             value: "{{ .Values.params.slackChannel }}"
           - name: TREAT_VENDOR_MANAGED_ROLES_AS_DEFAULT
             value: "{{ .Values.params.treatVendorManagedRolesAsDefault }}"
+          # The dashboard is token-gated and refuses to start without this.
+          # Point this at a secret you create with a long random token.
+          - name: KRANE_DASHBOARD_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.params.dashboardTokenSecret.name | quote }}
+                key: {{ .Values.params.dashboardTokenSecret.key | quote }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"

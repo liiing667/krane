@@ -43,15 +43,23 @@ module Cli
       # Finally honours -c: the UI reads the cluster to open from this manifest.
       Krane::Dashboard::Clusters.set_default options.cluster
 
+      token = ENV[Krane::Dashboard::Server::TOKEN_ENV].to_s
+      if token.strip.empty?
+        raise "#{Krane::Dashboard::Server::TOKEN_ENV} is not set. The dashboard refuses to start without a token: " \
+              "export #{Krane::Dashboard::Server::TOKEN_ENV}='<a long random value>' and present it as a bearer token."
+      end
+
       say "---".light_cyan
       say "KRANE DASHBOARD:".light_cyan
       say "http://localhost:#{options.port}".light_cyan
+      say "Access requires the #{Krane::Dashboard::Server::TOKEN_ENV} bearer token (value not shown)".light_cyan
       say "---".light_cyan
 
       Krane::Dashboard::Server.new(
         root:    File.join(Cli::Helpers::APP_ROOT, 'dashboard/compiled'),
         port:    options.port,
         bind:    options.bind,
+        token:   token,
         verbose: options.verbose
       ).start
     end

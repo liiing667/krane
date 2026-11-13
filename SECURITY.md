@@ -4,12 +4,21 @@
 
 Please contact security@appvia.io
 
-## The dashboard is unauthenticated
+## The dashboard is token-gated
 
-`krane dashboard` serves everything Krane has learned about a cluster's RBAC to
-anyone who can reach its port, and it binds to `0.0.0.0` by default so that it
-is reachable through a Service when running in a cluster. It has no
-authentication, and the Helm chart does not expose it.
+`krane dashboard` serves everything Krane has learned about a cluster's RBAC,
+and it binds to `0.0.0.0` by default so that it is reachable through a Service
+when running in a cluster. Access is denied by default: the server refuses to
+start unless the `KRANE_DASHBOARD_TOKEN` environment variable is set to a
+non-empty value, and every request must present that token as an
+`Authorization: Bearer ...` header or a `krane_token` cookie. Requests without
+it get a `401` before any path is resolved, so the index, report JSON, assets
+and error pages all behave identically to an anonymous caller.
+
+The token is read from the environment rather than a command-line flag so it
+never shows up in the process list, comparison uses
+`OpenSSL.fixed_length_secure_compare` so a wrong token cannot be discovered by
+response timing, and the token is never logged or echoed back in a response.
 
 Options for restricting access:
 
